@@ -72,9 +72,13 @@ def predict():
 
         # Make prediction
         preds = model_predict(img, model)
-        
+        'apple_pie','pizza','omelette', 'samosa'
+        dict1 = {'apple_pie': {'name': "Apple Pie\n", 'calories': "237 Kcal/100g", 'healthy': "No"},
+             'pizza': {'name': "Pizza\n", 'calories': "266 Kcal/100g", 'healthy': "No"},
+              'omelette': {'name': "Omelette\n", 'calories': "154 Kcal/100g", 'healthy': "Yes"},
+               'samosa': {'name': "Samosa\n", 'calories': "262 Kcal/100g", 'healthy': "No"}}
         # Serialize the result, you can add additional fields
-        return jsonify(result=str(preds))
+        return jsonify(result=str(dict1[preds]))
 
     return None
 
