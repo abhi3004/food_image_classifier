@@ -27,14 +27,14 @@ app = Flask(__name__)
 # Check https://keras.io/applications/
 # or https://www.tensorflow.org/api_docs/python/tf/keras/applications
 
-from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2
-model = MobileNetV2(weights='imagenet')
+MODEL_PATH = 'model.h5'
+model = load_model(MODEL_PATH)
 
 print('Model loaded. Check http://127.0.0.1:5000/')
 
 
 # Model saved with Keras model.save()
-MODEL_PATH = 'models/your_model.h5'
+
 
 # Load your own trained model
 # model = load_model(MODEL_PATH)
@@ -43,19 +43,16 @@ MODEL_PATH = 'models/your_model.h5'
 
 
 def model_predict(img, model):
+    food_list = ['apple_pie','pizza','omelette', 'samosa']
     img = img.resize((224, 224))
-
-    # Preprocessing the image
-    x = image.img_to_array(img)
-    # x = np.true_divide(x, 255)
-    x = np.expand_dims(x, axis=0)
-
-    # Be careful how your trained model deals with the input
-    # otherwise, it won't make correct prediction!
-    x = preprocess_input(x, mode='tf')
-
-    preds = model.predict(x)
-    return preds
+    x = image.img_to_array(img)                    
+    x = np.expand_dims(x, axis=0)         
+    x /= 255. 
+    pred = model.predict(x)
+    index = np.argmax(pred)
+    food_list.sort()
+    pred_value = food_list[index]
+    return pred_value
 
 
 @app.route('/', methods=['GET'])
@@ -75,16 +72,9 @@ def predict():
 
         # Make prediction
         preds = model_predict(img, model)
-
-        # Process your result for human
-        pred_proba = "{:.3f}".format(np.amax(preds))    # Max probability
-        pred_class = decode_predictions(preds, top=1)   # ImageNet Decode
-
-        result = str(pred_class[0][0][1])               # Convert to string
-        result = result.replace('_', ' ').capitalize()
         
         # Serialize the result, you can add additional fields
-        return jsonify(result=result, probability=pred_proba)
+        return jsonify(result=str(preds))
 
     return None
 
